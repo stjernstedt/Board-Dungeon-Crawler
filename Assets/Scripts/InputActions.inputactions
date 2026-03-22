@@ -47,7 +47,7 @@
                     "name": "Rotate",
                     "type": "Value",
                     "id": "c423380c-f14a-4935-a5e4-c379cd436eb0",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -121,7 +121,18 @@
                 {
                     "name": "",
                     "id": "7b0696c0-8478-49f5-a617-d658aa44272c",
-                    "path": "",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3331909b-d34b-41b9-b84a-49b96cb19a84",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

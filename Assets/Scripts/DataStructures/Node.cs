@@ -4,29 +4,40 @@ using UnityEngine;
 public class Node
 {
     public Vector3Int position { get; private set; }
+    public int x, y;
     public bool isWalkable { get; private set; }
     public int cost { get; private set; }
-    public Node(Vector3Int position, int cost, bool isWalkable)
+    public int gCost;
+    public int hCost;
+    public int fCost { get { return gCost + hCost; } }
+    public Node cameFromNode;
+
+    public Node(Vector3Int position, int x, int y, int cost, bool isWalkable)
     {
         this.position = position;
+        this.x = x;
+        this.y = y;
         this.cost = cost;
         this.isWalkable = isWalkable;
     }
 
     public List<Node> GetNeighbours()
     {
-        Dictionary<Vector2Int, Node> grid = Managers.Instance.gridManager.grid;
+        //Dictionary<Vector2Int, Node> grid = Managers.Instance.gridManager.grid;
+        Node[,] grid = Managers.Instance.gridManager.grid;
         List<Node> neighbours = new List<Node>();
 
-        Node neighbour;
-        if (grid.TryGetValue(new Vector2Int((int)position.x + 1, (int)position.z), out neighbour))
-            neighbours.Add(neighbour);
-        if (grid.TryGetValue(new Vector2Int((int)position.x - 1, (int)position.z), out neighbour))
-            neighbours.Add(neighbour);
-        if (grid.TryGetValue(new Vector2Int((int)position.x, (int)position.z + 1), out neighbour))
-            neighbours.Add(neighbour);
-        if (grid.TryGetValue(new Vector2Int((int)position.x, (int)position.z - 1), out neighbour))
-            neighbours.Add(neighbour);
+
+
+        //Node neighbour;
+        //if (grid.TryGetValue(new Vector2Int((int)position.x + 1, (int)position.z), out neighbour))
+        //    neighbours.Add(neighbour);
+        //if (grid.TryGetValue(new Vector2Int((int)position.x - 1, (int)position.z), out neighbour))
+        //    neighbours.Add(neighbour);
+        //if (grid.TryGetValue(new Vector2Int((int)position.x, (int)position.z + 1), out neighbour))
+        //    neighbours.Add(neighbour);
+        //if (grid.TryGetValue(new Vector2Int((int)position.x, (int)position.z - 1), out neighbour))
+        //    neighbours.Add(neighbour);
 
         return neighbours;
     }

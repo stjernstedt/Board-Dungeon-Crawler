@@ -24,6 +24,17 @@ public class PriorityQueue<T>
         return bestCandidate.item;
     }
 
+    public (T, int) Peek()
+    {
+        if (queue.Count == 0) throw new System.InvalidOperationException("The queue is empty.");
+        var bestCandidate = queue[0];
+        foreach (var item in queue)
+        {
+            if (item.priority < bestCandidate.priority) bestCandidate = item;
+        }
+        return bestCandidate;
+    }
+
     public bool Contains(T item)
     {
         foreach (var element in queue)

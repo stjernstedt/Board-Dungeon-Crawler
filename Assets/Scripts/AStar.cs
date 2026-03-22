@@ -1,121 +1,135 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class AStar : MonoBehaviour
 {
+    Node[,] grid;
+    GridManager gridManager;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        List<PathNode> path = GetPath(Managers.Instance.gridManager.grid[new Vector2Int(0, 0)], Managers.Instance.gridManager.grid[new Vector2Int(4, 8)]);
-        InvokeRepeating(nameof(FindTarget), 0, 0.1f);
+        gridManager = Managers.Instance.gridManager;
+        grid = gridManager.grid;
+        List<Node> path = FindPath(grid[0, 0], grid[4, 4]);
+
+        ColorTiles(path, Color.green);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            FindTarget();
+        }
     }
 
     void FindTarget()
     {
+        GameObject[,] tiles = Managers.Instance.gridManager.tiles;
+        foreach (var node in grid)
+        {
+            if (node.isWalkable)
+                tiles[node.x, node.y].GetComponent<Renderer>().material.color = Color.white;
+        }
+
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            Node node = Managers.Instance.gridManager.grid[new Vector2Int((int)hit.collider.transform.position.x, (int)hit.collider.transform.position.z)];
-            GetPath(Managers.Instance.gridManager.grid[new Vector2Int(0, 0)], node);
-        }
+            Node node = grid[(int)hit.collider.transform.position.x, (int)hit.collider.transform.position.z];
+            if (node.isWalkable)
+            {
+                List<Node> path = FindPath(grid[0, 0], node);
 
+                ColorTiles(path, Color.green);
+            }
+        }
     }
 
-    public List<PathNode> GetPath(Node start, Node target)
+    List<Node> FindPath(Node startNode, Node targetNode)
     {
-        PriorityQueue<PathNode> openList = new PriorityQueue<PathNode>();
-        List<PathNode> closedList = new List<PathNode>();
-        List<PathNode> path = new List<PathNode>();
+        startNode.cameFromNode = null;
 
-        PathNode startingNode = new PathNode(start, null, 0, CalculateHCost(start, target));
-        openList.Enqueue(startingNode, startingNode.fCost);
-        PathNode currentNode;
+        List<Node> openList = new List<Node>();
+        HashSet<Node> closedList = new HashSet<Node>();
+
+        openList.Add(startNode);
 
         while (openList.Count > 0)
         {
-            currentNode = openList.Dequeue();
+            Node currentNode = openList[0];
 
-            if (currentNode.node == target)
+            for (int i = 1; i < openList.Count; i++)
             {
-                while (currentNode != null)
+                if (openList[i].fCost < currentNode.fCost || openList[i].fCost == currentNode.fCost && openList[i].hCost < currentNode.hCost)
                 {
-                    path.Add(currentNode);
-                    currentNode = currentNode.cameFromNode;
+                    currentNode = openList[i];
                 }
-
-                //////////////////////
-                foreach (var node in Managers.Instance.gridManager.grid)
-                {
-                    if (node.Value.isWalkable == false) continue;
-                    Managers.Instance.gridManager.tiles[node.Key].GetComponent<Renderer>().material.color = Color.white;
-                }
-                ColorTiles(closedList, Color.blue);
-                ColorTiles(path, Color.yellow);
-                /////////////////////
-                return path;
             }
 
+            openList.Remove(currentNode);
             closedList.Add(currentNode);
 
-            foreach (var node in currentNode.node.GetNeighbours())
+            if (currentNode == targetNode)
             {
-                if (node.isWalkable == false) continue;
-                bool inClosedList = false;
-                foreach (var pathnode in closedList)
-                {
-                    if (pathnode.node == node) inClosedList = true;
-                }
-                if (inClosedList) continue;
+                break;
+            }
 
-                bool inOpenList = false;
-
-                foreach (var pathNode in openList.ToList())
+            foreach (var neighbour in gridManager.GetNeighbours(currentNode))
+            {
+                if (neighbour.isWalkable == false || closedList.Contains(neighbour))
                 {
-                    if (pathNode.node == node) inOpenList = true;
-                }
-                if (!inOpenList)
-                {
-                    PathNode neighbour = new PathNode(node, currentNode, CalculateGCost(currentNode, node), CalculateHCost(node, target));
-                    openList.Enqueue(neighbour, neighbour.fCost);
                     continue;
                 }
 
-                int tmpGCost = CalculateGCost(currentNode, node);
-                foreach (var pathNode in openList.ToList())
+                //int tentativeGCost = currentNode.gCost + ManhattanDistance(currentNode, neighbour); // make it not manhattan distance, but the actual cost to move from currentNode to neighbour
+                int tentativeGCost = currentNode.gCost + neighbour.cost;
+                if (tentativeGCost < neighbour.gCost || !openList.Contains(neighbour))
                 {
-                    // this code only fires on unwalkable nodes, and only sometimes?
-                    if (pathNode.node == node && tmpGCost < pathNode.gCost)
-                    {
-                        Debug.Log("updated node");
-                        pathNode.cameFromNode = currentNode;
-                        pathNode.gCost = tmpGCost;
-                        pathNode.fCost = pathNode.gCost + pathNode.hCost;
-                        openList.UpdatePriority(pathNode, pathNode.fCost);
-                    }
-                }
+                    neighbour.gCost = tentativeGCost;
+                    neighbour.hCost = ManhattanDistance(neighbour, targetNode);
+                    neighbour.cameFromNode = currentNode;
 
+                    if (!openList.Contains(neighbour)) openList.Add(neighbour);
+                }
             }
         }
-        return null;
+
+        ColorTiles(closedList.ToList<Node>(), Color.blue);
+        List<Node> path = RetracePath(startNode, targetNode);
+        if (path == null) return null;
+        return path;
     }
 
-    int CalculateGCost(PathNode node, Node nextNode)
+    List<Node> RetracePath(Node startNode, Node targetNode)
     {
-        return node.gCost + nextNode.cost;
-    }
+        List<Node> path = new List<Node>();
+        Node currentNode = targetNode;
 
-    int CalculateHCost(Node node, Node targetNode)
-    {
-        return (int)Vector3Int.Distance(node.position, targetNode.position);
-    }
-
-    public void ColorTiles(List<PathNode> path, Color color)
-    {
-        foreach (var pathnode in path)
+        while (currentNode != startNode)
         {
-            GameObject tile = Managers.Instance.gridManager.tiles[new Vector2Int(pathnode.node.position.x, pathnode.node.position.z)];
-            tile.GetComponent<Renderer>().material.color = color;
+            path.Add(currentNode);
+            currentNode = currentNode.cameFromNode;
+        }
+
+        path.Reverse();
+        return path;
+    }
+
+    int ManhattanDistance(Node node, Node targetNode)
+    {
+        return (int)(Mathf.Abs(node.position.x - targetNode.position.x) + Mathf.Abs(node.position.z - targetNode.position.z));
+    }
+
+    void ColorTiles(List<Node> nodes, Color color)
+    {
+        foreach (Node node in nodes)
+        {
+            gridManager.tiles[node.position.x, node.position.z].GetComponent<Renderer>().material.color = color;
         }
     }
+
 }

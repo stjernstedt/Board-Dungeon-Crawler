@@ -3,40 +3,52 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    [SerializeField] GameObject tilePrefab;
-    [SerializeField] GameObject playerPrefab;
-    [SerializeField] int width = 5;
-    [SerializeField] int height = 5;
+    public Node[,] grid { get; private set; }
+    public GameObject[,] tiles { get; private set; }
+    public GameObject tilePrefab;
+    public int width, height;
 
-    public Dictionary<Vector2Int, Node> grid { get; private set; }
-    public Dictionary<Vector2Int, GameObject> tiles { get; private set; }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        grid = new Node[width, height];
         GenerateGrid();
-    }
-
-    void Start()
-    {
         GenerateTiles();
-        GeneratePlayer();
-
-        BreadthFirstSearch breadthFirstSearch = new BreadthFirstSearch();
-        Dictionary<Node, PathNode> nodesInRange = breadthFirstSearch.GetNodes(grid[new Vector2Int(0, 0)], 3);
-
-        foreach (var node in nodesInRange)
-        {
-
-            GameObject tile = tiles[new Vector2Int((int)node.Key.position.x, (int)node.Key.position.z)];
-            tile.GetComponent<Renderer>().material.color = Color.green;
-        }
 
     }
 
     // Update is called once per frame
-    void Update()
+    void Start()
     {
+    }
 
+    void GenerateGrid()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                int cost = 1;
+                //bool isWalkable = true;
+                bool isWalkable = RandomWalkable();
+                grid[x, y] = new Node(new Vector3Int(x, 0, y), x, y, cost, isWalkable);
+            }
+        }
+    }
+
+    void GenerateTiles()
+    {
+        tiles = new GameObject[width, height];
+        GameObject tilesObject = new GameObject("Tiles");
+        foreach (var node in grid)
+        {
+            GameObject tileObject = Instantiate(tilePrefab, node.position, Quaternion.identity);
+            tileObject.transform.Translate(0, -tileObject.transform.localScale.y / 2, 0);
+            tileObject.transform.parent = tilesObject.transform;
+            tiles[node.position.x, node.position.z] = tileObject;
+
+            if (!node.isWalkable) tileObject.GetComponent<Renderer>().material.color = Color.black;
+        }
     }
 
     void OnDrawGizmos()
@@ -44,51 +56,30 @@ public class GridManager : MonoBehaviour
         if (grid == null) return;
         foreach (var node in grid)
         {
-            Gizmos.DrawSphere(node.Value.position, 0.05f);
+            Gizmos.DrawSphere(node.position, 0.05f);
         }
     }
+
+    public List<Node> GetNeighbours(Node node)
+    {
+        List<Node> neighbours = new List<Node>();
+        if (node.x > 0)
+            neighbours.Add(grid[node.x - 1, node.y]);
+        if (node.x < grid.GetLength(0) - 1)
+            neighbours.Add(grid[node.x + 1, node.y]);
+        if (node.y > 0)
+            neighbours.Add(grid[node.x, node.y - 1]);
+        if (node.y < grid.GetLength(1) - 1)
+            neighbours.Add(grid[node.x, node.y + 1]);
+
+        return neighbours;
+    }
+
 
     bool RandomWalkable()
     {
-        bool walkable = Random.value > 0.25f;
-
-        return walkable;
-    }
-
-    void GenerateGrid()
-    {
-        grid = new Dictionary<Vector2Int, Node>();
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                int cost = 1;
-                Node node = new Node(new Vector3Int(x, 0, y), cost, RandomWalkable());
-                Vector2Int key = new Vector2Int(x, y);
-                grid[key] = node;
-            }
-        }
-    }
-
-    void GenerateTiles()
-    {
-        tiles = new Dictionary<Vector2Int, GameObject>();
-        GameObject tilesObject = new GameObject("Tiles");
-        foreach (var node in grid)
-        {
-            GameObject tileObject = Instantiate(tilePrefab, node.Value.position, Quaternion.identity);
-            tileObject.transform.Translate(0, -tileObject.transform.localScale.y / 2, 0);
-            tileObject.transform.parent = tilesObject.transform;
-            tiles.Add(node.Key, tileObject);
-
-            if (!node.Value.isWalkable) tileObject.GetComponent<Renderer>().material.color = Color.black;
-        }
-    }
-
-    void GeneratePlayer()
-    {
-        GameObject playerObject = Instantiate(playerPrefab, grid[new Vector2Int(0, 0)].position, Quaternion.identity);
-        Managers.Instance.playPiecesManager.playerObject = playerObject;
+        bool isWalkable = Random.value > 0.3;
+        return isWalkable;
     }
 
 }

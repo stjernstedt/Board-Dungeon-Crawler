@@ -150,6 +150,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   camera: {fileID: 330585543}
   panningSpeed: 10
+  panLimitX: 5
+  panLimitY: 5
 --- !u!4 &163037185
 Transform:
   m_ObjectHideFlags: 0
@@ -176,10 +178,10 @@ GameObject:
   m_Component:
   - component: {fileID: 201310798}
   - component: {fileID: 201310803}
-  - component: {fileID: 201310799}
+  - component: {fileID: 201310804}
   - component: {fileID: 201310802}
   - component: {fileID: 201310801}
-  - component: {fileID: 201310804}
+  - component: {fileID: 201310805}
   m_Layer: 0
   m_Name: Core
   m_TagString: Untagged
@@ -202,22 +204,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &201310799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 201310796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28b5932521210354cb48395145d86465, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GridManager
-  tilePrefab: {fileID: 3677848235143985553, guid: c642a36abe073f647aaec38edb61538c, type: 3}
-  playerPrefab: {fileID: 8218369093708678399, guid: 5785ab2048396fe419a01460b1f8889e, type: 3}
-  width: 10
-  height: 10
 --- !u!114 &201310801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,7 +217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Movement
   moveSpeed: 4
-  gridManager: {fileID: 201310799}
+  gridManager: {fileID: 201310804}
 --- !u!114 &201310802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,7 +243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a799fbdd0b896448ac960f09aed9f22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Managers
-  gridManager: {fileID: 201310799}
+  gridManager: {fileID: 201310804}
   playPiecesManager: {fileID: 201310802}
 --- !u!114 &201310804
 MonoBehaviour:
@@ -268,7 +254,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 201310796}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1334878e26b92124e95e6e9d13d82f71, type: 3}
+  m_Script: {fileID: 11500000, guid: 702d217493c5c0e4791aa7ec61997a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  tilePrefab: {fileID: 8773044143436457424, guid: c4608e66d2c72e540ba85c43ddb9fff3, type: 3}
+  width: 30
+  height: 30
+--- !u!114 &201310805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 201310796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf0e1e10fc6f0174a8cf771a5997ed57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AStar
 --- !u!1 &330585543
