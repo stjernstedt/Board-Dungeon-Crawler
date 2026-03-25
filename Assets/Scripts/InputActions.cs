@@ -134,7 +134,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""type"": ""Value"",
                     ""id"": ""c423380c-f14a-4935-a5e4-c379cd436eb0"",
                     ""expectedControlType"": ""Axis"",
-                    ""processors"": """",
+                    ""processors"": ""Scale(factor=100)"",
                     ""interactions"": """",
                     ""initialStateCheck"": true
                 },
@@ -220,7 +220,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""id"": ""3331909b-d34b-41b9-b84a-49b96cb19a84"",
                     ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""Invert"",
                     ""groups"": """",
                     ""action"": ""Rotate"",
                     ""isComposite"": false,
