@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
@@ -7,6 +8,7 @@ public class GridManager : MonoBehaviour
     public GameObject[,] tiles { get; private set; }
     public GameObject tilePrefab;
     public int width, height;
+    public GameObject playerPrefab;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -14,7 +16,7 @@ public class GridManager : MonoBehaviour
         grid = new Node[width, height];
         GenerateGrid();
         GenerateTiles();
-
+        PlacePlayer();
     }
 
     // Update is called once per frame
@@ -28,7 +30,8 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                int cost = 1;
+                //int cost = 1;
+                int cost = Random.Range(1, 20);
                 //bool isWalkable = true;
                 bool isWalkable = RandomWalkable();
                 grid[x, y] = new Node(new Vector3Int(x, 0, y), x, y, cost, isWalkable);
@@ -45,6 +48,13 @@ public class GridManager : MonoBehaviour
             GameObject tileObject = Instantiate(tilePrefab, node.position, Quaternion.identity);
             tileObject.transform.Translate(0, -tileObject.transform.localScale.y / 2, 0);
             tileObject.transform.parent = tilesObject.transform;
+
+            if (node.isWalkable)
+                tileObject.GetComponentInChildren<TextMeshPro>().text = node.cost.ToString();
+            else
+                tileObject.GetComponentInChildren<TextMeshPro>().text = "X";
+
+
             tiles[node.position.x, node.position.z] = tileObject;
 
             if (!node.isWalkable) tileObject.GetComponent<Renderer>().material.color = Color.black;
@@ -80,6 +90,11 @@ public class GridManager : MonoBehaviour
     {
         bool isWalkable = Random.value > 0.3;
         return isWalkable;
+    }
+
+    void PlacePlayer()
+    {
+        GameObject player = Instantiate(playerPrefab, new Vector3Int(grid[0, 0].x, 0, grid[0, 0].y), Quaternion.identity);
     }
 
 }
