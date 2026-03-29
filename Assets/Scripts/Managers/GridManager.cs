@@ -10,7 +10,8 @@ public class GridManager : MonoBehaviour
     public int width, height;
     public GameObject playerPrefab;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public bool randomWalkable;
+
     void Awake()
     {
         grid = new Node[width, height];
@@ -19,9 +20,11 @@ public class GridManager : MonoBehaviour
         PlacePlayer();
     }
 
-    // Update is called once per frame
     void Start()
     {
+        BreadthFirstSearch bfs = new BreadthFirstSearch();
+        List<Node> nodes = bfs.GetNodes(grid[0, 0], 10);
+        ColorTiles(nodes, Color.red);
     }
 
     void GenerateGrid()
@@ -31,9 +34,9 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 //int cost = 1;
-                int cost = Random.Range(1, 20);
-                //bool isWalkable = true;
-                bool isWalkable = RandomWalkable();
+                int cost = Random.Range(1, 3);
+                bool isWalkable;
+                if (randomWalkable) { isWalkable = RandomWalkable(); } else { isWalkable = true; }
                 grid[x, y] = new Node(new Vector3Int(x, 0, y), x, y, cost, isWalkable);
             }
         }
@@ -88,8 +91,16 @@ public class GridManager : MonoBehaviour
 
     bool RandomWalkable()
     {
-        bool isWalkable = Random.value > 0.3;
+        bool isWalkable = Random.value > 0.2;
         return isWalkable;
+    }
+
+    public void ColorTiles(List<Node> nodes, Color color)
+    {
+        foreach (Node node in nodes)
+        {
+            tiles[node.position.x, node.position.z].GetComponent<Renderer>().material.color = color;
+        }
     }
 
     void PlacePlayer()

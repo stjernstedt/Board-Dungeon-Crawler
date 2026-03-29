@@ -168,7 +168,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Movement
   moveSpeed: 4
-  gridManager: {fileID: 201310804}
 --- !u!114 &201310802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,6 +211,7 @@ MonoBehaviour:
   width: 30
   height: 30
   playerPrefab: {fileID: 8218369093708678399, guid: 5785ab2048396fe419a01460b1f8889e, type: 3}
+  randomWalkable: 1
 --- !u!114 &201310805
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -614,7 +614,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa0a346e53a02334d88e22adbe45e0dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  camera: {fileID: 330585543}
   panningSpeed: 10
   panLimitX: 5
   panLimitY: 5
@@ -739,8 +738,8 @@ MonoBehaviour:
       Owner: {fileID: 1646645300}
       Enabled: 1
       Input:
-        InputAction: {fileID: 6240969308177333660, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-        Gain: -1
+        InputAction: {fileID: -4945737349582127859, guid: 40b551a678d99a54c9ff8c5f890bc744, type: 3}
+        Gain: -10
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -807,7 +806,7 @@ MonoBehaviour:
   VerticalAxis:
     Value: 35
     Center: 35
-    Range: {x: -10, y: 45}
+    Range: {x: 35, y: 35}
     Wrap: 0
     Recentering:
       Enabled: 0
@@ -817,7 +816,7 @@ MonoBehaviour:
   RadialAxis:
     Value: 1
     Center: 1
-    Range: {x: 1, y: 10}
+    Range: {x: 0.5, y: 1}
     Wrap: 0
     Recentering:
       Enabled: 0

@@ -2,41 +2,48 @@ using System.Collections.Generic;
 
 public class BreadthFirstSearch
 {
-    public Dictionary<Node, PathNode> GetNodes(Node startNode, int range)
+    GridManager gridManager = Managers.Instance.gridManager;
+    public List<Node> GetNodes(Node startNode, int range)
     {
-        Queue<PathNode> openList = new Queue<PathNode>();
-        Dictionary<Node, PathNode> closedList = new Dictionary<Node, PathNode>();
+        Node[,] grid = gridManager.grid;
 
-        PathNode startPathNode = new PathNode(startNode, null, 0, 0);
-        openList.Enqueue(startPathNode);
+        Queue<Node> openList = new Queue<Node>();
+        List<Node> closedList = new List<Node>();
+
+        openList.Enqueue(startNode);
 
         while (openList.Count > 0)
         {
-            PathNode currentPathNode = openList.Dequeue();
-            if (CalculateCostToNode(currentPathNode) > range) continue;
-            if (currentPathNode.node.isWalkable == false) continue;
-            foreach (var node in currentPathNode.node.GetNeighbours())
+            Node currentNode = openList.Dequeue();
+            if (currentNode.isWalkable == false) continue;
+            if (CalculateCostToNode(currentNode) > range) continue;
+            foreach (var node in gridManager.GetNeighbours(currentNode))
             {
-                if (!closedList.ContainsKey(node))
-                    openList.Enqueue(new PathNode(node, currentPathNode, 0, 0));
+                if (!closedList.Contains(node))
+                {
+                    node.cameFromNode = currentNode;
+                    openList.Enqueue(node);
+                }
             }
-            if (!closedList.ContainsKey(currentPathNode.node))
-                closedList.Add(currentPathNode.node, currentPathNode.cameFromNode);
+            if (!closedList.Contains(currentNode))
+                closedList.Add(currentNode);
         }
 
         return closedList;
     }
 
-    int CalculateCostToNode(PathNode node)
+    // TODO this does not recalculate already calculated nodes, i.e. not finding the correct range for all nodes
+    int CalculateCostToNode(Node node)
     {
         int totalCost = 0;
-        PathNode cameFromNode = node.cameFromNode;
+        Node cameFromNode = node.cameFromNode;
         while (cameFromNode != null)
         {
-            totalCost += cameFromNode.node.cost;
+            totalCost += cameFromNode.cost;
             cameFromNode = cameFromNode.cameFromNode;
         }
 
+        //gridManager.tiles[node.x, node.y].GetComponentInChildren<TextMeshPro>().text = totalCost.ToString();
         return totalCost;
     }
 }

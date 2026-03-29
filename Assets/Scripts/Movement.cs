@@ -1,49 +1,70 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Movement : MonoBehaviour
 {
     [SerializeField] int moveSpeed = 1;
-    [SerializeField] GridManager gridManager;
-    GameObject playerObject;
+    GridManager gridManager;
+    AStar aStar;
+    List<Node> path;
 
-    Node node = null;
+    Node targetNode = null;
+    Node nextNode = null;
 
     bool isMoving = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        playerObject = Managers.Instance.playPiecesManager.playerObject;
+        gridManager = Managers.Instance.gridManager;
+        aStar = GetComponent<AStar>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            FindTarget();
+        }
+
         if (isMoving)
         {
-            MoveTo(node);
+            MoveTo(nextNode);
         }
+    }
+
+    void FindTarget()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            targetNode = gridManager.grid[(int)hit.collider.transform.position.x, (int)hit.collider.transform.position.z];
+            if (targetNode.isWalkable)
+            {
+                path = aStar.FindPath(gridManager.grid[(int)transform.position.x, (int)transform.position.z], targetNode);
+
+                //gridManager.ColorTiles(path, Color.green);
+
+                GetNextNode(path);
+                isMoving = true;
+            }
+        }
+
     }
 
     void MoveTo(Node node)
     {
-        if (playerObject.transform.position == node.position) { isMoving = false; return; }
+        if (transform.position == targetNode.position) { isMoving = false; return; }
+        if (transform.position == node.position) { GetNextNode(path); }
 
-        playerObject.transform.position = Vector3.MoveTowards(playerObject.transform.position, node.position, Time.deltaTime * moveSpeed);
+        transform.position = Vector3.MoveTowards(transform.position, node.position, Time.deltaTime * moveSpeed);
     }
 
-    public void GetNode(InputAction.CallbackContext context)
+    public void GetNextNode(List<Node> path)
     {
-        if (context.phase == InputActionPhase.Canceled)
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                //node = gridManager.grid[new Vector2Int((int)hit.collider.transform.position.x, (int)hit.collider.transform.position.z)];
-            }
-
-            isMoving = true;
-        }
+        nextNode = path[0];
+        path.Remove(nextNode);
     }
 }

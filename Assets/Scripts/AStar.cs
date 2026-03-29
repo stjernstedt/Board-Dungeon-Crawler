@@ -13,21 +13,18 @@ public class AStar : MonoBehaviour
     {
         gridManager = Managers.Instance.gridManager;
         grid = gridManager.grid;
-        List<Node> path = FindPath(grid[0, 0], grid[4, 4]);
-
-        ColorTiles(path, Color.green);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            FindTarget();
-        }
+        //if (Mouse.current.leftButton.wasPressedThisFrame)
+        //{
+        //    FindTarget();
+        //}
     }
 
-    void FindTarget()
+    public void FindTarget()
     {
         GameObject[,] tiles = Managers.Instance.gridManager.tiles;
         foreach (var node in grid)
@@ -44,12 +41,12 @@ public class AStar : MonoBehaviour
             {
                 List<Node> path = FindPath(grid[0, 0], node);
 
-                ColorTiles(path, Color.green);
+                gridManager.ColorTiles(path, Color.green);
             }
         }
     }
 
-    List<Node> FindPath(Node startNode, Node targetNode)
+    public List<Node> FindPath(Node startNode, Node targetNode)
     {
         startNode.cameFromNode = null;
 
@@ -98,7 +95,7 @@ public class AStar : MonoBehaviour
             }
         }
 
-        ColorTiles(closedList.ToList<Node>(), Color.blue);
+        gridManager.ColorTiles(closedList.ToList<Node>(), Color.blue);
         List<Node> path = RetracePath(startNode, targetNode);
         if (path == null) return null;
         return path;
@@ -122,14 +119,6 @@ public class AStar : MonoBehaviour
     int ManhattanDistance(Node node, Node targetNode)
     {
         return (int)(Mathf.Abs(node.position.x - targetNode.position.x) + Mathf.Abs(node.position.z - targetNode.position.z));
-    }
-
-    void ColorTiles(List<Node> nodes, Color color)
-    {
-        foreach (Node node in nodes)
-        {
-            gridManager.tiles[node.position.x, node.position.z].GetComponent<Renderer>().material.color = color;
-        }
     }
 
 }
